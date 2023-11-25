@@ -395,6 +395,11 @@ const menu = [
         label: 'Setoran Simpok Simwa',
         component: import('@/pages/Simpanan/SetoranSimpokSimwa.vue'),
       },
+      {
+        target: 'setoran-simpanan-anggota',
+        label: 'Setoran Simpanan Anggota',
+        component: import('@/pages/Simpanan/SetoranSimpananAnggota.vue'),
+      },
     ]
   },
   // Pengaturan

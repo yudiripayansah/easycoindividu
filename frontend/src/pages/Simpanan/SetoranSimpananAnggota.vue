@@ -75,8 +75,8 @@
                             <template #cell(no)="data">
                                 {{ data.index + 1 }}
                             </template>
-                            <template #cell(no_anggota)="data">
-                                {{ getKodeKecamatan(data.item.no_anggota) }}
+                            <template #cell(no_rekening)="data">
+                                {{ getKodeKecamatan(data.item.no_rekening) }}
                             </template>
                             <template #cell(action)="data">
                                 <b-button
@@ -126,19 +126,19 @@
                     <b-col md="6" offset-md="3">
                         <b-form @submit="doSave">
                             <b-form-group
-                                id="input-group-no_anggota"
-                                label-for="input-group-no_anggota"
+                                id="input-group-no_rekening"
+                                label-for="input-group-no_rekening"
                             >
                                 <template>
-                                    No. Anggota:
+                                    No. Rekening:
                                     <span class="text-danger">*</span>
                                 </template>
                                 <b-form-select
-                                    id="no_anggota"
-                                    :options="opt.no_anggota"
-                                    v-model="$v.form.data.no_anggota.$model"
-                                    :state="validateState('no_anggota')"
-                                    @change="doGetAnggotaDetail()"
+                                    id="no_rekening"
+                                    :options="opt.no_rekening"
+                                    v-model="$v.form.data.no_rekening.$model"
+                                    :state="validateState('no_rekening')"
+                                    @change="doGetNoRekeningDetail()"
                                 />
                             </b-form-group>
                             <b-form-group
@@ -153,24 +153,24 @@
                                 />
                             </b-form-group>
                             <b-form-group
-                                id="input-group-saldo_simpanan_pokok"
-                                label="Saldo Simpanan Pokok:"
-                                label-for="saldo_simpanan_pokok"
+                                id="input-group-produk"
+                                label="Produk:"
+                                label-for="produk"
                             >
                                 <b-form-input
-                                    id="saldo_simpanan_pokok"
-                                    v-model="form.data.saldo_simpanan_pokok"
+                                    id="produk"
+                                    v-model="form.data.produk"
                                     disabled
                                 />
                             </b-form-group>
                             <b-form-group
-                                id="input-group-saldo_simpanan_wajib"
-                                label="Saldo Simpanan Wajib:"
-                                label-for="saldo_simpanan_wajib"
+                                id="input-group-saldo_efektif"
+                                label="Saldo Efektif:"
+                                label-for="saldo_efektif"
                             >
                                 <b-form-input
-                                    id="saldo_simpanan_wajib"
-                                    v-model="form.data.saldo_simpanan_wajib"
+                                    id="saldo_efektif"
+                                    v-model="form.data.saldo_efektif"
                                     disabled
                                 />
                             </b-form-group>
@@ -187,20 +187,6 @@
                                     id="tgl_transaksi"
                                     v-model="$v.form.data.tgl_transaksi.$model"
                                     :state="validateState('tgl_transaksi')"
-                                />
-                            </b-form-group>
-                            <b-form-group
-                                id="input-group-jenis_setoran"
-                                label-for="jenis_setoran"
-                            >
-                                <template>
-                                    Jenis Setoran:
-                                    <span class="text-danger">*</span>
-                                </template>
-                                <b-form-select
-                                    id="jenis_setoran"
-                                    v-model="$v.form.data.jenis_setoran.$model"
-                                    :state="validateState('jenis_setoran')"
                                 />
                             </b-form-group>
                             <b-form-group
@@ -310,19 +296,18 @@ import { validationMixin } from "vuelidate";
 import { required } from "vuelidate/lib/validators";
 import easycoApi from "@/core/services/easyco.service";
 export default {
-    name: "SetoranSimpokSimwa",
+    name: "SetoranAnggota",
     components: {},
     data() {
         return {
             form: {
                 data: {
                     id: null,
-                    no_anggota: null,
+                    no_rekening: null,
                     nama: null,
-                    saldo_simpanan_pokok: null,
-                    saldo_simpanan_wajib: null,
+                    produk: null,
+                    saldo_efektif: null,
                     tgl_transaksi: null,
-                    jenis_setoran: null,
                     jumlah_setoran: null,
                     no_referensi: null,
                     keterangan: null,
@@ -341,9 +326,9 @@ export default {
                         tdClass: "text-center",
                     },
                     {
-                        key: "no_transaksi",
+                        key: "no_rekening",
                         sortable: true,
-                        label: "No. Transaksi",
+                        label: "No. Rekening",
                         thClass: "text-center",
                         tdClass: "text-center",
                     },
@@ -355,9 +340,16 @@ export default {
                         tdClass: "text-left",
                     },
                     {
-                        key: "jenis_setoran",
+                        key: "produk",
                         sortable: true,
-                        label: "Jenis Setoran",
+                        label: "Produk",
+                        thClass: "text-center",
+                        tdClass: "text-center",
+                    },
+                    {
+                        key: "jumlah_setoran",
+                        sortable: true,
+                        label: "Jumlah Setoran",
                         thClass: "text-center",
                         tdClass: "text-center",
                     },
@@ -394,7 +386,7 @@ export default {
             },
             opt: {
                 perPage: [10, 25, 50, 100],
-                no_anggota: [],
+                no_rekening: [],
             },
         };
     },
@@ -402,13 +394,10 @@ export default {
     validations: {
         form: {
             data: {
-                no_anggota: {
+                no_rekening: {
                     required,
                 },
                 tgl_transaksi: {
-                    required,
-                },
-                jenis_setoran: {
                     required,
                 },
                 jumlah_setoran: {
@@ -437,19 +426,19 @@ export default {
             return $dirty ? !$error : null;
         },
         getKodeKecamatan(kode) {
-            let kecamatan = this.opt.no_anggota.find(
+            let kecamatan = this.opt.no_rekening.find(
                 (item) => item.value == kode
             );
             if (kecamatan) {
                 return kecamatan.text;
             }
         },
-        async doGetAnggotaDetail() {
+        async doGetNoRekeningDetail() {
             let payload = {
-                no_anggota: this.form.data.no_anggota,
+                no_rekening: this.form.data.no_rekening,
             };
             try {
-                let req = await easycoApi.doGetAnggotaDetail(
+                let req = await easycoApi.doGetNoRekeningDetail(
                     payload,
                     this.user.token
                 );
@@ -461,26 +450,26 @@ export default {
                 console.error(error);
             }
         },
-        async doGetAnggota() {
+        async doGetNoRekening() {
             let payload = { ...this.paging };
             payload.sortDir = payload.sortDesc ? "DESC" : "ASC";
             payload.perPage = "~";
             try {
-                let req = await easycoApi.doGetAnggota(
+                let req = await easycoApi.doGetNoRekening(
                     payload,
                     this.user.token
                 );
                 let { data, status, msg, total } = req.data;
                 if (status) {
-                    this.opt.no_anggota = [
+                    this.opt.no_rekening = [
                         {
                             value: 0,
                             text: "kecamatan",
                         },
                     ];
                     data.map((item) => {
-                        this.opt.no_anggota.push({
-                            value: item.no_anggota,
+                        this.opt.no_rekening.push({
+                            value: item.no_rekening,
                             text: item.nama_kecamatan,
                         });
                     });
@@ -494,7 +483,7 @@ export default {
             payload.sortDir = payload.sortDesc ? "DESC" : "ASC";
             this.table.loading = true;
             try {
-                let req = await easycoApi.doGetSimpananSetoranSimpokSimwa(
+                let req = await easycoApi.doGetSimpananSetoranAnggota(
                     payload,
                     this.user.token
                 );
@@ -518,17 +507,15 @@ export default {
                     payload.created_by = this.user.id;
                     let req = false;
                     if (payload.id) {
-                        req =
-                            await easycoApi.doUpdateSimpananSetoranSimpokSimwa(
-                                payload,
-                                this.user.token
-                            );
+                        req = await easycoApi.doUpdateSimpananSetoranAnggota(
+                            payload,
+                            this.user.token
+                        );
                     } else {
-                        req =
-                            await easycoApi.doCreateSimpananSetoranSimpokSimwa(
-                                payload,
-                                this.user.token
-                            );
+                        req = await easycoApi.doCreateSimpananSetoranAnggota(
+                            payload,
+                            this.user.token
+                        );
                     }
                     let { status } = req.data;
                     if (status) {
@@ -538,7 +525,7 @@ export default {
                             "Data berhasil disimpan"
                         );
                         this.doGet();
-                        this.doGetAnggota();
+                        this.doGetNoRekening();
                         this.$bvModal.hide("modal-form");
                     } else {
                         this.notify("danger", "Error", "Data gagal disimpan");
@@ -554,7 +541,7 @@ export default {
         },
         async doUpdate(item) {
             try {
-                let req = await easycoApi.doGetSimpananSetoranSimpokSimwaDetail(
+                let req = await easycoApi.doGetSimpananSetoranAnggotaDetail(
                     `id=${item.id}`,
                     this.user.token
                 );
@@ -575,11 +562,10 @@ export default {
             } else {
                 this.remove.loading = true;
                 try {
-                    let req =
-                        await easycoApi.doDeleteSimpananSetoranSimpokSimwa(
-                            `id=${this.remove.data.id}`,
-                            this.user.token
-                        );
+                    let req = await easycoApi.doDeleteSimpananSetoranAnggota(
+                        `id=${this.remove.data.id}`,
+                        this.user.token
+                    );
                     let { status } = req.data;
                     if (status) {
                         this.remove.loading = false;
@@ -590,7 +576,7 @@ export default {
                             "Data berhasil dihapus"
                         );
                         this.doGet();
-                        this.doGetAnggota();
+                        this.doGetNoRekening();
                     } else {
                         this.notify("danger", "Error", "Data gagal dihapus");
                     }
@@ -602,7 +588,7 @@ export default {
         doClearForm() {
             this.form.data = {
                 id: null,
-                no_anggota: 0,
+                no_rekening: 0,
                 tgl_transaksi: null,
                 jenis_setoran: null,
                 created_by: null,
@@ -621,7 +607,7 @@ export default {
     },
     mounted() {
         this.doGet();
-        this.doGetAnggota();
+        this.doGetNoRekening();
     },
 };
 </script>
