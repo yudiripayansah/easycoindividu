@@ -384,6 +384,19 @@ const menu = [
   //     },
   //   ]
   // },
+  {
+    target: '/simpanan',
+    label: 'Simpanan',
+    icon: 'menu-icon fas fa-money-check-alt',
+    component: import('@/pages/Tabungan'),
+    children: [
+      {
+        target: 'setoran-simpok-simwa',
+        label: 'Setoran Simpok Simwa',
+        component: import('@/pages/Simpanan/SetoranSimpokSimwa.vue'),
+      },
+    ]
+  },
   // Pengaturan
   {
     target: '/pengaturan',
