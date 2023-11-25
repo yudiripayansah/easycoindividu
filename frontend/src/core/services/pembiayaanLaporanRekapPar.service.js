@@ -1,5 +1,5 @@
 import axios from "axios";
-axios.defaults.baseURL = "https://easyco.kopsyahmsi.com/api/api/";
+axios.defaults.baseURL = "https://easycoindividu.kopikoding.com/api/api/";
 
 /**
  * BEGIN
@@ -7,42 +7,42 @@ axios.defaults.baseURL = "https://easyco.kopsyahmsi.com/api/api/";
  * @date 2023-10-21
  */
 export default {
-    pembiayaanLaporanRekapPar(payload, token) {
-        const url = "laporan/rekap/par";
-        const config = {
-            headers: {
-                token: token,
-            },
-        };
-        return axios.post(url, payload, config);
-    },
-    pembiayaanLaporanRekapParExportToXLSX(payload, token) {
-        const url = "laporan/rekap/excel/par?" + payload;
-        const config = {
-            headers: {
-                token: token,
-            },
-            responseType: 'blob'
-        };
-        return axios.get(url, config);
-    },
-    pembiayaanLaporanRekapParExportToCSV(payload, token) {
-        const url = "laporan/rekap/csv/par?" + payload;
-        const config = {
-            headers: {
-                token: token,
-            },
-            responseType: 'blob'
-        };
-        return axios.get(url, config);
-    },
-    listTanggalPAR(payload, token) {
-        const url = "laporan/list/get_par_date";
-        const config = {
-            headers: {
-                token: token,
-            },
-        };
-        return axios.post(url, payload, config);
-    },
+  pembiayaanLaporanRekapPar(payload, token) {
+    const url = "laporan/rekap/par";
+    const config = {
+      headers: {
+        token: token,
+      },
+    };
+    return axios.post(url, payload, config);
+  },
+  pembiayaanLaporanRekapParExportToXLSX(payload, token) {
+    const url = "laporan/rekap/excel/par?" + payload;
+    const config = {
+      headers: {
+        token: token,
+      },
+      responseType: "blob",
+    };
+    return axios.get(url, config);
+  },
+  pembiayaanLaporanRekapParExportToCSV(payload, token) {
+    const url = "laporan/rekap/csv/par?" + payload;
+    const config = {
+      headers: {
+        token: token,
+      },
+      responseType: "blob",
+    };
+    return axios.get(url, config);
+  },
+  listTanggalPAR(payload, token) {
+    const url = "laporan/list/get_par_date";
+    const config = {
+      headers: {
+        token: token,
+      },
+    };
+    return axios.post(url, payload, config);
+  },
 };
