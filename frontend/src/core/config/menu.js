@@ -12,11 +12,11 @@ const menu = [
     icon: 'menu-icon far fa-user',
     component: import('@/pages/Keanggotaan'),
     children: [
-      // {
-      //   target: 'registrasi-anggota',
-      //   label: 'Registrasi Anggota',
-      //   component: import('@/pages/Keanggotaan/RegistrasiAnggota'),
-      // },
+      {
+        target: 'registrasi-anggota',
+        label: 'Registrasi Anggota',
+        component: import('@/pages/Keanggotaan/RegistrasiAnggotaV2.vue'),
+      },
       {
         target: 'registrasi-anggota-rembug',
         label: 'Registrasi Anggota Majelis',

@@ -1,5 +1,5 @@
 import axios from "axios";
-axios.defaults.baseURL = "https://easyco.kopsyahmsi.com/api/api/";
+axios.defaults.baseURL = "https://easycoindividu.kopikoding.com/api/api/";
 import anggotaKeluarService from "./anggotaKeluar.service";
 import laporanStatementTabungan from "./laporanStatementTabungan.service";
 import laporanKeuanganBulanLalu from "./laporanKeuanganBulanLalu.service";
@@ -56,7 +56,7 @@ const easycoApi = {
     return axios.post(url, payload, config);
   },
   anggotaDelete(payload, token) {
-    let url = "anggota/delete/" + payload;
+    let url = "anggota/delete?" + payload;
     let config = {
       headers: {
         token: token,
@@ -65,7 +65,7 @@ const easycoApi = {
     return axios.get(url, config);
   },
   anggotaDetail(payload, token) {
-    let url = "anggota/detail/" + payload;
+    let url = "anggota/detail?" + payload;
     let config = {
       headers: {
         token: token,
