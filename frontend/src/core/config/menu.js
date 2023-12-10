@@ -12,11 +12,11 @@ const menu = [
     icon: 'menu-icon far fa-user',
     component: import('@/pages/Keanggotaan'),
     children: [
-      // {
-      //   target: 'registrasi-anggota',
-      //   label: 'Registrasi Anggota',
-      //   component: import('@/pages/Keanggotaan/RegistrasiAnggota'),
-      // },
+      {
+        target: 'registrasi-anggota',
+        label: 'Registrasi Anggota',
+        component: import('@/pages/Keanggotaan/RegistrasiAnggotaV2.vue'),
+      },
       {
         target: 'registrasi-anggota-rembug',
         label: 'Registrasi Anggota Majelis',
@@ -384,6 +384,24 @@ const menu = [
   //     },
   //   ]
   // },
+  {
+    target: '/simpanan',
+    label: 'Simpanan',
+    icon: 'menu-icon fas fa-money-check-alt',
+    component: import('@/pages/Tabungan'),
+    children: [
+      {
+        target: 'setoran-simpok-simwa',
+        label: 'Setoran Simpok Simwa',
+        component: import('@/pages/Simpanan/SetoranSimpokSimwa.vue'),
+      },
+      {
+        target: 'setoran-simpanan-anggota',
+        label: 'Setoran Simpanan Anggota',
+        component: import('@/pages/Simpanan/SetoranSimpananAnggota.vue'),
+      },
+    ]
+  },
   // Pengaturan
   {
     target: '/pengaturan',

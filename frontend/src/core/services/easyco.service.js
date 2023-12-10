@@ -13,6 +13,7 @@ import pembiayaanLaporanRekapPencairanPembiayaan from "./pembiayaanLaporanRekapP
 import pembiayaanLaporanRekapOutstandingPiutang from "./pembiayaanLaporanRekapOutstandingPiutang.service";
 import tabunganPinBukSaldoTabunganSukarela from "./tabunganPinBukSaldoTabunganSukarela.service";
 import pembiayaanLaporanRekapPar from "./pembiayaanLaporanRekapPar.service";
+import simpananSetoranSimpokSimwaService from "./simpananSetoranSimpokSimwa.service";
 
 const easycoApi = {
   login(payload) {
@@ -56,7 +57,7 @@ const easycoApi = {
     return axios.post(url, payload, config);
   },
   anggotaDelete(payload, token) {
-    let url = "anggota/delete/" + payload;
+    let url = "anggota/delete?" + payload;
     let config = {
       headers: {
         token: token,
@@ -65,7 +66,7 @@ const easycoApi = {
     return axios.get(url, config);
   },
   anggotaDetail(payload, token) {
-    let url = "anggota/detail/" + payload;
+    let url = "anggota/detail?" + payload;
     let config = {
       headers: {
         token: token,
@@ -1544,5 +1545,6 @@ const easycoApi = {
   ...pembiayaanLaporanRekapOutstandingPiutang,
   ...tabunganPinBukSaldoTabunganSukarela,
   ...pembiayaanLaporanRekapPar,
+  ...simpananSetoranSimpokSimwaService,
 };
 export default easycoApi;
