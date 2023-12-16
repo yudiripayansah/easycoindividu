@@ -129,6 +129,7 @@
                                 <ValidationProvider
                                     name="Cabang"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-kode_cabang"
@@ -163,6 +164,7 @@
                                 <ValidationProvider
                                     name="Nama Lengkap"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-nama_anggota"
@@ -196,6 +198,7 @@
                                 <ValidationProvider
                                     name="Jenis Kelamin"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-jenis_kelamin"
@@ -230,6 +233,7 @@
                                 <ValidationProvider
                                     name="Ibu Kandung"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-ibu_kandung"
@@ -265,6 +269,7 @@
                                         <ValidationProvider
                                             name="Tempat Lahir"
                                             v-slot="validationContext"
+                                            :rules="{ required: true }"
                                         >
                                             <b-form-group
                                                 id="input-group-tempat_lahir"
@@ -304,6 +309,10 @@
                                         <ValidationProvider
                                             name="Tanggal Lahir"
                                             v-slot="validationContext"
+                                            :rules="{
+                                                required: true,
+                                                // date_format: 'dd/MM/yyyy',
+                                            }"
                                         >
                                             <b-form-group
                                                 id="input-group-tgl_lahir"
@@ -362,6 +371,7 @@
                                 <ValidationProvider
                                     name="No. KTP"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-no_ktp"
@@ -413,6 +423,7 @@
                                 <ValidationProvider
                                     name="No. NPWP"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-no_npwp"
@@ -446,6 +457,7 @@
                                 <ValidationProvider
                                     name="No. Telp"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-no_telp"
@@ -479,6 +491,7 @@
                                 <ValidationProvider
                                     name="Alamat"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-alamat"
@@ -516,6 +529,7 @@
                                         <ValidationProvider
                                             name="Desa"
                                             v-slot="validationContext"
+                                            :rules="{ required: true }"
                                         >
                                             <b-form-group
                                                 id="input-group-desa"
@@ -553,6 +567,7 @@
                                         <ValidationProvider
                                             name="Kecamatan"
                                             v-slot="validationContext"
+                                            :rules="{ required: true }"
                                         >
                                             <b-form-group
                                                 id="input-group-kecamatan"
@@ -594,6 +609,7 @@
                                         <ValidationProvider
                                             name="Kabupaten"
                                             v-slot="validationContext"
+                                            :rules="{ required: true }"
                                         >
                                             <b-form-group
                                                 id="input-group-kabupaten"
@@ -633,6 +649,7 @@
                                         <ValidationProvider
                                             name="Kode Pos"
                                             v-slot="validationContext"
+                                            :rules="{ required: true }"
                                         >
                                             <b-form-group
                                                 id="input-group-kodepos"
@@ -671,6 +688,7 @@
                                 <ValidationProvider
                                     name="Pendidikan"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-pendidikan"
@@ -706,6 +724,7 @@
                                         <ValidationProvider
                                             name="Pekerjaan"
                                             v-slot="validationContext"
+                                            :rules="{ required: true }"
                                         >
                                             <b-form-group
                                                 id="input-group-pekerjaan"
@@ -717,19 +736,20 @@
                                                         >*</span
                                                     >
                                                 </template>
-                                                <b-form-input
+                                                <b-form-select
                                                     id="input-pekerjaan"
                                                     name="input-pekerjaan"
                                                     v-model="
                                                         form.data.pekerjaan
                                                     "
+                                                    :options="opt.pekerjaan"
                                                     :state="
                                                         getValidationState(
                                                             validationContext
                                                         )
                                                     "
                                                     aria-describedby="input-pekerjaan-live-feedback"
-                                                ></b-form-input>
+                                                ></b-form-select>
 
                                                 <b-form-invalid-feedback
                                                     id="input-pekerjaan-live-feedback"
@@ -785,6 +805,7 @@
                                 <ValidationProvider
                                     name="Pendapatan Perbulan"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-pendapatan_perbulan"
@@ -821,6 +842,7 @@
                                 <ValidationProvider
                                     name="Status Pernikahan"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-status_perkawinan"
@@ -857,6 +879,7 @@
                                 <ValidationProvider
                                     name="Nama Pasangan (Sesuai KTP)"
                                     v-slot="validationContext"
+                                    :rules="{ required: true }"
                                 >
                                     <b-form-group
                                         id="input-group-nama_pasangan"
@@ -1357,21 +1380,24 @@ export default {
                 let payload = new FormData();
                 let payloadData = { ...this.form.data };
 
-                // payloadData.created_by = this.user.id;
-                // payloadData.status = 0;
-                payloadData.ttd_anggota = this.$refs.signature.save();
+                console.log({ payloadData });
 
                 for (let key in payloadData) {
                     payload.append(key, payloadData[key]);
                 }
 
                 let req = false;
-                if (payload.id) {
+
+                if (this.form.data.id) {
+                    if (this.form.data.ttd_anggota != null) {
+                        payloadData.ttd_anggota = this.$refs.signature.save();
+                    }
                     req = await easycoApi.anggotaUpdate(
                         payload,
                         this.user.token
                     );
                 } else {
+                    payloadData.ttd_anggota = this.$refs.signature.save();
                     req = await easycoApi.anggotaCreate(
                         payload,
                         this.user.token
@@ -1470,10 +1496,6 @@ export default {
                 nama_pasangan: null,
                 ttd_anggota: null,
             };
-
-            // this.$nextTick(() => {
-            //     this.$refs.observer.reset();
-            // });
         },
         notify(type, title, msg) {
             this.$bvToast.toast(msg, {
