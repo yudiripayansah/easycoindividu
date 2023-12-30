@@ -8,13 +8,7 @@
             <b-form-select
               v-model="paging.cabang"
               :options="opt.cabang"
-              @change="doGetMajelis()"
-            />
-          </b-form-group>
-          <b-form-group label="Majelis" class="mr-5 col-4 p-0 mb-0">
-            <b-form-select
-              v-model="paging.rembug"
-              :options="opt.majelis"
+              @change="doGet()"
             />
           </b-form-group>
         </b-col>
@@ -54,15 +48,6 @@
     >
       <b-form>
         <b-row>
-          <b-col cols="6">
-            <b-form-group label="Majlis" label-for="cabang">
-              <b-form-input
-                id="cabang"
-                disabled
-                :value="form.data.nama_rembug"
-              />
-            </b-form-group>
-          </b-col>
           <b-col cols="6">
             <b-form-group label="No Anggota" label-for="no_anggota">
               <b-form-input
@@ -285,7 +270,6 @@ export default {
         data: {
           id: null,
           no_anggota: null,
-          nama_rembug: null,
           nama_anggota: null,
           nama_alasan: null,
           keterangan_mutasi: null,
@@ -311,13 +295,6 @@ export default {
             label: "No",
             thClass: "text-center w-5p",
             tdClass: "text-center",
-          },
-          {
-            key: "nama_rembug",
-            sortable: true,
-            label: "Majelis",
-            thClass: "text-center",
-            tdClass: "",
           },
           {
             key: "no_anggota",
@@ -359,8 +336,7 @@ export default {
         sortBy: "ka.no_anggota",
         search: "",
         status: 0,
-        cabang: null,
-        rembug: null,
+        cabang: null
       },
       remove: {
         data: Object,
@@ -369,7 +345,6 @@ export default {
       opt: {
         perPage: [10, 25, 50, 100],
         cabang: [],
-        majelis: [],
         alasan: [
           {
             value: 1,
@@ -492,32 +467,6 @@ export default {
         console.error(error);
       }
     },
-    async doGetMajelis() {
-      this.opt.majelis = [];
-      let payload = {
-        perPage: "~",
-        page: 1,
-        sortBy: "kode_rembug",
-        sortDir: "ASC",
-        search: "",
-        kode_cabang: this.paging.cabang,
-      };
-      try {
-        let req = await easycoApi.rembugRead(payload, this.user.token);
-        let { data, status, msg } = req.data;
-        if (status) {
-          data.map((item) => {
-            this.opt.majelis.push({
-              value: item.kode_rembug,
-              text: item.nama_rembug,
-              data: item,
-            });
-          });
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
     async doGetDetil(item) {
       console.log(item);
       this.form.data = { ...item };
@@ -525,7 +474,7 @@ export default {
     },
     async doGet() {
       let payload = { ...this.paging };
-      if (payload.cabang && payload.rembug) {
+      if (payload.cabang) {
         this.table.loading = true;
         try {
           let req = await easycoApi.approvalAnggotaKeluar(

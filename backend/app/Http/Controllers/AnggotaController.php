@@ -12,6 +12,7 @@ use App\Models\KopUser;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AnggotaController extends Controller
 {
@@ -106,114 +107,132 @@ class AnggotaController extends Controller
 
     function create(Request $request)
     {
-        $data = $request->all();
+        $token = $request->header('token');
+        $param = array('token' => $token);
+        $get = KopUser::where($param)->first();
 
-        $data2 = array(
-            'p_nama' => strtoupper($request->p_nama),
-            'p_tmplahir' => strtoupper($request->p_tmplahir),
-            'p_tglahir' => $request->p_tglahir,
-            'usia' => $request->usia,
-            'p_noktp' => $request->p_noktp,
-            'p_nohp' => $request->p_nohp,
-            'p_pendidikan' => $request->p_pendidikan,
-            'p_pekerjaan' => $request->p_pekerjaan,
-            'p_ketpekerjaan' => strtoupper($request->p_ketpekerjaan),
-            'p_pendapatan' => $request->p_pendapatan,
-            'jml_anak' => $request->jml_anak,
-            'jml_tanggungan' => $request->jml_tanggungan,
-            'rumah_status' => $request->rumah_status,
-            'rumah_ukuran' => $request->rumah_ukuran,
-            'rumah_atap' => $request->rumah_atap,
-            'rumah_dinding' => $request->rumah_dinding,
-            'rumah_lantai' => $request->rumah_lantai,
-            'rumah_jamban' => $request->rumah_jamban,
-            'rumah_air' => $request->rumah_air,
-            'lahan_sawah' => $request->lahan_sawah,
-            'lahan_kebun' => $request->lahan_kebun,
-            'lahan_pekarangan' => $request->lahan_pekarangan,
-            'ternak_sapi' => $request->ternak_sapi,
-            'ternak_domba' => $request->ternak_domba,
-            'ternak_unggas' => $request->ternak_unggas,
-            'elc_kulkas' => $request->elc_kulkas,
-            'elc_tv' => $request->elc_tv,
-            'elc_hp' => $request->elc_hp,
-            'kend_sepeda' => $request->kend_sepeda,
-            'kend_motor' => $request->kend_motor,
-            'ush_rumahtangga' => $request->ush_rumahtangga,
-            'ush_komoditi' => strtoupper($request->ush_komoditi),
-            'ush_lokasi' => strtoupper($request->ush_lokasi),
-            'ush_omset' => $request->ush_omset,
-            'by_beras' => $request->by_beras,
-            'by_dapur' => $request->by_dapur,
-            'by_listrik' => $request->by_listrik,
-            'by_telpon' => $request->by_telpon,
-            'by_sekolah' => $request->by_sekolah,
-            'by_lain' => $request->by_lain
-        );
+        if ($token) {
+            $kode_cabang = $get->kode_cabang;
+            $created_by = $get->id;
+        } else {
+            $kode_cabang = $request->kode_cabang;
+            $created_by = 'SYS';
+        }
 
-        $data['nama_anggota'] = strtoupper($request->nama_anggota);
-        $data['ibu_kandung'] = strtoupper($request->ibu_kandung);
-        $data['tempat_lahir'] = strtoupper($request->tempat_lahir);
-        $data['alamat'] = strtoupper($request->alamat);
-        $data['desa'] = strtoupper($request->desa);
-        $data['kecamatan'] = strtoupper($request->kecamatan);
-        $data['kabupaten'] = strtoupper($request->kabupaten);
-        $data['nama_pasangan'] = strtoupper($request->nama_pasangan);
-        $data['ket_pekerjaan'] = strtoupper($request->ket_pekerjaan);
-        $data['simpok'] = 0;
-        $data['tgl_gabung'] = date('Y-m-d');
+        $nama_anggota = $request->nama_anggota;
+        $jenis_kelamin = $request->jenis_kelamin;
+        $ibu_kandung = $request->ibu_kandung;
+        $tempat_lahir = $request->tempat_lahir;
+        $tgl_lahir = $request->tgl_lahir;
+        $no_ktp = $request->no_ktp;
+        $fileKtp = $request->doc_ktp;
+        $no_npwp = $request->no_npwp;
+        $no_telp = $request->no_telp;
+        $alamat = $request->alamat;
+        $desa = $request->desa;
+        $kecamatan = $request->kecamatan;
+        $kabupaten = $request->kabupaten;
+        $kodepos = $request->kodepos;
+        $pendidikan = $request->pendidikan;
+        $pekerjaan = $request->pekerjaan;
+        $ket_pekerjaan = $request->ket_pekerjaan;
+        $pendapatan_perbulan = $request->pendapatan_perbulan;
+        $status_perkawinan = $request->status_perkawinan;
+        $nama_pasangan = $request->nama_pasangan;
+        $fileTtdAnggota = $request->ttd_anggota;
 
-        $validate = KopAnggota::validateAdd($data);
-        $validate2 = KopAnggotaUk::validateAdd($data2);
+        $nama_anggota = strtoupper($nama_anggota);
+        $ibu_kandung = strtoupper($ibu_kandung);
+        $tempat_lahir = strtoupper($tempat_lahir);
+        $tgl_lahir = date('Y-m-d', strtotime(str_replace('/', '-', $tgl_lahir)));
+        $alamat = strtoupper($alamat);
+        $desa = strtoupper($desa);
+        $kecamatan = strtoupper($kecamatan);
+        $kabupaten = strtoupper($kabupaten);
+        $ket_pekerjaan = strtoupper($ket_pekerjaan);
+        $nama_pasangan = strtoupper($nama_pasangan);
 
-        DB::beginTransaction();
+        $tgl_gabung = date('Y-m-d');
 
-        if ($validate['status'] === TRUE or $validate2['status'] === TRUE) {
-            try {
-                $create = KopAnggota::create($data);
-                $find = KopAnggota::find($create->id);
+        try {
+            if ($fileKtp == null or $fileKtp == 'null' or $fileKtp == 'undefined' or $fileKtp == '') {
+                $doc_ktp = null;
+            } else {
+                $name_ktp = 'ktp_' . $request->no_ktp . '.png';
+                $path_ktp = 'ktp/' . $name_ktp;
 
-                $finds = array('find' => $find);
+                Storage::disk('public')->put($path_ktp, file_get_contents($fileKtp));
 
-                $data2['no_anggota'] = $find->no_anggota;
+                $doc_ktp = $name_ktp;
+            }
 
-                $create2 = KopAnggotaUk::create($data2);
-                $find2 = KopAnggotaUk::find($create2->id);
+            if ($fileTtdAnggota == null or $fileTtdAnggota == 'null' or $fileTtdAnggota == 'undefined' or $fileTtdAnggota == '') {
+                $ttd_anggota = NULL;
+            } else {
+                $name_ttd_anggota = 'ttd_anggota_' . $request->no_ktp . '.png';
+                $path_ttd_anggota = 'document/' . $name_ttd_anggota;
 
-                $finds['find2'] = $find2;
+                Storage::disk('public')->put($path_ttd_anggota, file_get_contents($fileTtdAnggota));
+
+                $ttd_anggota = $name_ttd_anggota;
+            }
+
+            $data = array(
+                'kode_cabang' => $kode_cabang,
+                'nama_anggota' => $nama_anggota,
+                'jenis_kelamin' => $jenis_kelamin,
+                'ibu_kandung' => $ibu_kandung,
+                'tempat_lahir' => $tempat_lahir,
+                'tgl_lahir' => $tgl_lahir,
+                'no_ktp' => $no_ktp,
+                'doc_ktp' => $doc_ktp,
+                'no_npwp' => $no_npwp,
+                'no_telp' => $no_telp,
+                'alamat' => $alamat,
+                'desa' => $desa,
+                'kecamatan' => $kecamatan,
+                'kabupaten' => $kabupaten,
+                'kodepos' => $kodepos,
+                'no_telp' => $no_telp,
+                'pendidikan' => $pendidikan,
+                'pekerjaan' => $pekerjaan,
+                'ket_pekerjaan' => $ket_pekerjaan,
+                'pendapatan_perbulan' => $pendapatan_perbulan,
+                'status_perkawinan' => $status_perkawinan,
+                'nama_pasangan' => $nama_pasangan,
+                'ttd_anggota' => $ttd_anggota,
+                'tgl_gabung' => $tgl_gabung,
+                'created_by' => $created_by
+            );
+
+            $validate = KopAnggota::validateAdd($data);
+
+            DB::beginTransaction();
+
+            if ($validate['status'] === true) {
+                KopAnggota::create($data);
 
                 $res = array(
-                    'status' => TRUE,
-                    'data' => $finds,
+                    'status' => true,
+                    'data' => null,
                     'msg' => 'Berhasil!'
                 );
 
                 DB::commit();
-            } catch (Exception $e) {
+            } else {
                 DB::rollBack();
 
                 $res = array(
-                    'status' => FALSE,
+                    'status' => false,
                     'data' => $data,
-                    'msg' => $e->getMessage()
+                    'msg' => $validate['msg']
                 );
             }
-        } else {
-            $msg = array(
-                'validate' => $validate['msg'],
-                'validate2' => $validate2['msg']
-            );
-
-            $error = array(
-                'error' => $validate['errors'],
-                'error2' => $validate2['errors']
-            );
-
+        } catch (Exception $e) {
             $res = array(
-                'status' => FALSE,
-                'data' => $data,
-                'msg' => $msg,
-                'error' => $error
+                'status' => false,
+                'data' => null,
+                'msg' => $e->getMessage()
             );
         }
 
@@ -229,62 +248,62 @@ class AnggotaController extends Controller
         $perPage = '~';
         $sortDir = 'ASC';
         $sortBy = 'kop_anggota.no_anggota';
-        $search = NULL;
+        $search = null;
         $total = 0;
         $totalPage = 1;
         $rembug = '~';
         $petugas = 0;
         $status = '~';
-        $from = NULL;
-        $to = NULL;
+        $from = null;
+        $to = null;
 
-        $token = $request->header('token');
-        $param = array('token' => $token);
-        $get = KopUser::where($param)->first();
-        $cabang = $get->kode_cabang;
+        if (isset($request->kode_cabang)) {
+            $cabang = $request->kode_cabang;
+        } else {
+            $token = $request->header('token');
+            $param = array('token' => $token);
+            $get = KopUser::where($param)->first();
+            $cabang = $get->kode_cabang;
+        }
 
-        if ($request->page) {
+        if (isset($request->page)) {
             $page = $request->page;
         }
 
-        if ($request->perPage) {
+        if (isset($request->perPage)) {
             $perPage = $request->perPage;
         }
 
-        if ($request->sortDir) {
+        if (isset($request->sortDir)) {
             $sortDir = $request->sortDir;
         }
 
-        if ($request->sortBy) {
+        if (isset($request->sortBy)) {
             $sortBy = $request->sortBy;
         }
 
-        if ($request->search) {
+        if (isset($request->search)) {
             $search = strtoupper($request->search);
         }
 
-        if ($request->cabang) {
-            $cabang = $request->cabang;
-        }
-
-        if ($request->rembug) {
+        if (isset($request->rembug)) {
             $rembug = $request->rembug;
         }
 
-        if ($request->petugas) {
+        if (isset($request->petugas)) {
             $petugas = $request->petugas;
         }
 
-        if ($request->status) {
+        if (isset($request->status)) {
             $status = $request->status;
         }
 
-        if ($request->from) {
+        if (isset($request->from)) {
             $from = str_replace('/', '-', $request->from);
             $from = date('Y-m-d', strtotime($from));
         }
 
-        if ($request->to) {
+        if (isset($request->to)) {
             $to = str_replace('/', '-', $request->to);
             $to = date('Y-m-d', strtotime($to));
         }
@@ -293,7 +312,7 @@ class AnggotaController extends Controller
             $offset = ($page - 1) * $perPage;
         }
 
-        $read = KopAnggota::select('kop_anggota.*', 'kop_cabang.nama_cabang', 'kop_rembug.nama_rembug', DB::raw('COALESCE(kop_pembiayaan.saldo_pokok+kop_pembiayaan.saldo_margin,0) AS saldo_outstanding'))
+        $read = KopAnggota::select('kop_anggota.*', 'kop_cabang.nama_cabang', DB::raw('(CASE WHEN kop_anggota.kode_rembug IS NULL THEN \'INDIVIDU\' ELSE kop_rembug.nama_rembug END) AS nama_rembug'), DB::raw('COALESCE(kop_pembiayaan.saldo_pokok+kop_pembiayaan.saldo_margin,0) AS saldo_outstanding'))
             ->join('kop_cabang', 'kop_cabang.kode_cabang', 'kop_anggota.kode_cabang')
             ->leftjoin('kop_rembug', 'kop_rembug.kode_rembug', 'kop_anggota.kode_rembug')
             ->leftjoin('kop_pengajuan', function ($join) {
@@ -311,24 +330,24 @@ class AnggotaController extends Controller
             $read->where('kop_anggota.kode_cabang', $cabang);
         }
 
-        if ($rembug && $rembug != '~') {
+        if ($rembug != '~') {
             $read->where('kop_anggota.kode_rembug', $rembug);
         }
 
-        if ($petugas && $petugas != 0) {
+        if ($petugas != 0) {
             $read->where('kop_rembug.kode_petugas', $petugas);
         }
 
-        if ($status && $status != '~') {
+        if ($status != '~') {
             $read->where('kop_anggota.status', $status);
         }
 
-        if ($search) {
+        if ($search <> null) {
             $read->where('kop_anggota.no_anggota', 'LIKE', '%' . $search . '%')
                 ->orWhere('kop_anggota.nama_anggota', 'LIKE', '%' . $search . '%');
         }
 
-        if ($from && $to) {
+        if ($from <> null and $to <> null) {
             $read->whereBetween('kop_anggota.tgl_gabung', [$from, $to]);
         }
 
@@ -339,7 +358,7 @@ class AnggotaController extends Controller
             $rd->used_count = $useCount;
         }
 
-        if ($search || $cabang || $rembug || ($from && $to)) {
+        if ($search <> null || ($from <> null and $to <> null)) {
             $total = KopAnggota::join('kop_cabang', 'kop_cabang.kode_cabang', 'kop_anggota.kode_cabang')
                 ->leftjoin('kop_rembug', 'kop_rembug.kode_rembug', 'kop_anggota.kode_rembug')
                 ->leftjoin('kop_pengajuan', function ($join) {
@@ -354,12 +373,16 @@ class AnggotaController extends Controller
                 $total->where('kop_anggota.kode_cabang', $cabang);
             }
 
-            if ($rembug && $rembug != '~') {
+            if ($rembug != '~') {
                 $total->where('kop_anggota.kode_rembug', $rembug);
             }
 
-            if ($petugas && $petugas != 0) {
+            if ($petugas != 0) {
                 $total->where('kop_rembug.kode_petugas', $petugas);
+            }
+
+            if ($status != '~') {
+                $total->where('kop_anggota.status', $status);
             }
 
             if ($search) {
@@ -367,7 +390,7 @@ class AnggotaController extends Controller
                     ->orWhere('kop_anggota.nama_anggota', 'LIKE', '%' . $search . '%');
             }
 
-            if ($from && $to) {
+            if ($from <> null && $to <> null) {
                 $total->whereBetween('kop_anggota.tgl_gabung', [$from, $to]);
             }
 
@@ -406,19 +429,59 @@ class AnggotaController extends Controller
     {
         $id = $request->id;
 
-        if ($id) {
+        if (isset($request->id)) {
             $get = KopAnggota::find($id);
 
-            $param = array('no_anggota' => $get->no_anggota);
+            if ($get->doc_ktp == null or $get->doc_ktp == 'null' or $get->doc_ktp == 'undefined' or $get->doc_ktp == '') {
+                $base64_ktp = null;
+            } else {
+                $path2 = Storage::disk('public')->url('ktp/' . $get->doc_ktp);
+                $type2 = pathinfo($path2, PATHINFO_EXTENSION);
+                $data2 = @file_get_contents($path2);
+                $base64_ktp = 'data:image/' . $type2 . ';base64,' . base64_encode($data2);
+            }
 
-            $get2 = KopAnggotaUk::where($param)->first();
+            if ($get->ttd_anggota == null or $get->ttd_anggota == 'null' or $get->ttd_anggota == 'undefined' or $get->ttd_anggota == '') {
+                $base64_ttd = null;
+            } else {
+                $path1 = Storage::disk('public')->url('document/' . $get->ttd_anggota);
+                $type1 = pathinfo($path1, PATHINFO_EXTENSION);
+                $data1 = @file_get_contents($path1);
+                $base64_ttd = 'data:image/' . $type1 . ';base64,' . base64_encode($data1);
+            }
 
             $data = array(
-                'anggota' => $get,
-                'anggotauk' => $get2
+                'id' => $get->id,
+                'kode_cabang' => $get->kode_cabang,
+                'no_anggota' => $get->no_anggota,
+                'nama_anggota' => $get->nama_anggota,
+                'jenis_kelamin' => $get->jenis_kelamin,
+                'ibu_kandung' => $get->ibu_kandung,
+                'tempat_lahir' => $get->tempat_lahir,
+                'tgl_lahir' => date('d/m/Y', strtotime(str_replace('-', '/', $get->tgl_lahir))),
+                'alamat' => $get->alamat,
+                'desa' => $get->desa,
+                'kecamatan' => $get->kecamatan,
+                'kabupaten' => $get->kabupaten,
+                'kodepos' => $get->kodepos,
+                'no_ktp' => $get->no_ktp,
+                'doc_ktp' => $base64_ktp,
+                'no_npwp' => $get->no_npwp,
+                'no_telp' => $get->no_telp,
+                'pendidikan' => $get->pendidikan,
+                'status_perkawinan' => $get->status_perkawinan,
+                'nama_pasangan' => $get->nama_pasangan,
+                'pekerjaan' => $get->pekerjaan,
+                'ket_pekerjaan' => $get->ket_pekerjaan,
+                'pendapatan_perbulan' => (int) $get->pendapatan_perbulan,
+                'simpok' => (int) $get->simpok,
+                'simwa' => (int) $get->simwa,
+                'simsuk' => (int) $get->simsuk,
+                'tgl_gabung' => date('d/m/Y', strtotime(str_replace('-', '/', $get->tgl_gabung))),
+                'ttd_anggota' => $base64_ttd
             );
 
-            if ($get) {
+            if ($data) {
                 $res = array(
                     'status' => TRUE,
                     'data' => $data,
@@ -444,152 +507,169 @@ class AnggotaController extends Controller
 
     public function update(Request $request)
     {
-        $get = KopAnggota::find($request->id);
-        $validate = KopAnggota::validateUpdate($request->all());
+        $token = $request->header('token');
+        $param = array('token' => $token);
+        $get = KopUser::where($param)->first();
 
-        $get->nama_anggota = strtoupper($request->nama_anggota);
-        $get->jenis_kelamin = $request->jenis_kelamin;
-        $get->kode_rembug = $request->kode_rembug;
-        $get->ibu_kandung = strtoupper($request->ibu_kandung);
-        $get->tempat_lahir = strtoupper($request->tempat_lahir);
-        $get->tgl_lahir = $request->tgl_lahir;
-        $get->alamat = strtoupper($request->alamat);
-        $get->desa = strtoupper($request->desa);
-        $get->kecamatan = strtoupper($request->kecamatan);
-        $get->kabupaten = strtoupper($request->kabupaten);
-        $get->kodepos = $request->kodepos;
-        $get->no_ktp = $request->no_ktp;
-        $get->no_npwp = $request->no_npwp;
-        $get->no_telp = $request->no_telp;
-        $get->pendidikan = $request->pendidikan;
-        $get->status_perkawinan = $request->status_perkawinan;
-        $get->nama_pasangan = strtoupper($request->nama_pasangan);
-        $get->pekerjaan = $request->pekerjaan;
-        $get->ket_pekerjaan = $request->ket_pekerjaan;
-        $get->pendapatan_perbulan = $request->pendapatan_perbulan;
-        $get->tgl_gabung = $request->tgl_gabung;
-        $get->status = $request->status;
+        if ($token) {
+            $updated_by = $get->id;
+        } else {
+            $updated_by = 'SYS';
+        }
 
-        $param = array('no_anggota' => $get->no_anggota);
+        $find = KopAnggota::find($request->id);
 
-        $get2 = KopAnggotaUk::where($param)->first();
+        $find->nama_anggota = strtoupper($request->nama_anggota);
+        $find->jenis_kelamin = $request->jenis_kelamin;
+        $find->ibu_kandung = strtoupper($request->ibu_kandung);
+        $find->tempat_lahir = strtoupper($request->tempat_lahir);
+        $find->tgl_lahir = date('Y-m-d', strtotime(str_replace('/', '-', $request->tgl_lahir)));
+        $find->no_ktp = $request->no_ktp;
+        $find->no_npwp = $request->no_npwp;
+        $find->no_telp = $request->no_telp;
+        $find->alamat = strtoupper($request->alamat);
+        $find->desa = strtoupper($request->desa);
+        $find->kecamatan = strtoupper($request->kecamatan);
+        $find->kabupaten = strtoupper($request->kabupaten);
+        $find->kodepos = $request->kodepos;
+        $find->pendidikan = $request->pendidikan;
+        $find->pekerjaan = $request->pekerjaan;
+        $find->ket_pekerjaan = strtoupper($request->ket_pekerjaan);
+        $find->pendapatan_perbulan = $request->pendapatan_perbulan;
+        $find->status_perkawinan = $request->status_perkawinan;
+        $find->nama_pasangan = strtoupper($request->nama_pasangan);
+        $find->updated_by = $updated_by;
+        $find->updated_at = date('Y-m-d H:i:s');
 
-        $get2->id = $get2->id;
-        $get2->p_nama = strtoupper($request->p_nama);
-        $get2->p_tmplahir = strtoupper($request->p_tmplahir);
-        $get2->p_tglahir = $request->p_tglahir;
-        $get2->usia = $request->usia;
-        $get2->p_noktp = $request->p_noktp;
-        $get2->p_nohp = $request->p_nohp;
-        $get2->p_pendidikan = $request->p_pendidikan;
-        $get2->p_pekerjaan = $request->p_pekerjaan;
-        $get2->p_ketpekerjaan = strtoupper($request->p_ketpekerjaan);
-        $get2->p_pendapatan = $request->p_pendapatan;
-        $get2->jml_anak = $request->jml_anak;
-        $get2->jml_tanggungan = $request->jml_tanggungan;
-        $get2->rumah_status = $request->rumah_status;
-        $get2->rumah_ukuran = $request->rumah_ukuran;
-        $get2->rumah_atap = $request->rumah_atap;
-        $get2->rumah_dinding = $request->rumah_dinding;
-        $get2->rumah_lantai = $request->rumah_lantai;
-        $get2->rumah_jamban = $request->rumah_jamban;
-        $get2->rumah_air = $request->rumah_air;
-        $get2->lahan_sawah = $request->lahan_sawah;
-        $get2->lahan_kebun = $request->lahan_kebun;
-        $get2->lahan_pekarangan = $request->lahan_pekarangan;
-        $get2->ternak_sapi = $request->ternak_sapi;
-        $get2->ternak_domba = $request->ternak_domba;
-        $get2->ternak_unggas = $request->ternak_unggas;
-        $get2->elc_kulkas = $request->elc_kulkas;
-        $get2->elc_tv = $request->elc_tv;
-        $get2->elc_hp = $request->elc_hp;
-        $get2->kend_sepeda = $request->kend_sepeda;
-        $get2->kend_motor = $request->kend_motor;
-        $get2->ush_rumahtangga = $request->ush_rumahtangga;
-        $get2->ush_komoditi = strtoupper($request->ush_komoditi);
-        $get2->ush_lokasi = strtoupper($request->ush_lokasi);
-        $get2->ush_omset = $request->ush_omset;
-        $get2->by_beras = $request->by_beras;
-        $get2->by_dapur = $request->by_dapur;
-        $get2->by_listrik = $request->by_listrik;
-        $get2->by_telpon = $request->by_telpon;
-        $get2->by_sekolah = $request->by_sekolah;
-        $get2->by_lain = $request->by_lain;
+        try {
+            if ($request->doc_ktp == null or $request->doc_ktp == 'null' or $request->doc_ktp == 'undefined' or $request->doc_ktp == '') {
+                $find->doc_ktp = $find->doc_ktp;
+            } else {
+                $name_ktp = 'ktp_' . $request->no_ktp . '.png';
+                $path_ktp = 'ktp/' . $name_ktp;
 
-        $data = array(
-            'p_nama' => $request->p_nama,
-            'p_tmplahir' => $request->p_tmplahir,
-            'p_tglahir' => $request->p_tglahir,
-            'usia' => $request->usia,
-            'p_noktp' => $request->p_noktp,
-            'p_nohp' => $request->p_nohp,
-            'p_pendidikan' => $request->p_pendidikan,
-            'p_pekerjaan' => $request->p_pekerjaan,
-            'p_ketpekerjaan' => $request->p_ketpekerjaan,
-            'p_pendapatan' => $request->p_pendapatan,
-            'jml_anak' => $request->jml_anak,
-            'jml_tanggungan' => $request->jml_tanggungan,
-            'rumah_status' => $request->rumah_status,
-            'rumah_ukuran' => $request->rumah_ukuran,
-            'rumah_atap' => $request->rumah_atap,
-            'rumah_dinding' => $request->rumah_dinding,
-            'rumah_lantai' => $request->rumah_lantai,
-            'rumah_jamban' => $request->rumah_jamban,
-            'rumah_air' => $request->rumah_air,
-            'lahan_sawah' => $request->lahan_sawah,
-            'lahan_kebun' => $request->lahan_kebun,
-            'lahan_pekarangan' => $request->lahan_pekarangan,
-            'ternak_sapi' => $request->ternak_sapi,
-            'ternak_domba' => $request->ternak_domba,
-            'ternak_unggas' => $request->ternak_unggas,
-            'elc_kulkas' => $request->elc_kulkas,
-            'elc_tv' => $request->elc_tv,
-            'elc_hp' => $request->elc_hp,
-            'kend_sepeda' => $request->kend_sepeda,
-            'kend_motor' => $request->kend_motor,
-            'ush_rumahtangga' => $request->ush_rumahtangga,
-            'ush_komoditi' => $request->ush_komoditi,
-            'ush_lokasi' => $request->ush_lokasi,
-            'ush_omset' => $request->ush_omset,
-            'by_beras' => $request->by_beras,
-            'by_dapur' => $request->by_dapur,
-            'by_listrik' => $request->by_listrik,
-            'by_telpon' => $request->by_telpon,
-            'by_sekolah' => $request->by_sekolah,
-            'by_lain' => $request->by_lain
-        );
+                Storage::disk('public')->put($path_ktp, file_get_contents($request->doc_ktp));
 
-        $validate2 = KopAnggotaUk::validateUpdate($data);
+                $find->doc_ktp = $name_ktp;
+            }
 
-        DB::beginTransaction();
+            if ($request->ttd_anggota == null or $request->ttd_anggota == 'null' or $request->ttd_anggota == 'undefined' or $request->ttd_anggota == '') {
+                $find->ttd_anggota = $find->ttd_anggota;
+            } else {
+                $name_ttd_anggota = 'ttd_anggota_' . $request->no_ktp . '.png';
+                $path_ttd_anggota = 'document/' . $name_ttd_anggota;
 
-        if ($validate['status'] === TRUE or $validate2['status'] === TRUE) {
-            try {
-                $get->save();
-                $get2->save();
+                Storage::disk('public')->put($path_ttd_anggota, file_get_contents($request->ttd_anggota));
+
+                $find->ttd_anggota = $name_ttd_anggota;
+            }
+
+            $validate = KopAnggota::validateUpdate($request->all());
+
+            DB::beginTransaction();
+
+            if ($validate['status'] === true) {
+                $find->save();
 
                 $res = array(
-                    'status' => TRUE,
-                    'data' => NULL,
+                    'status' => true,
+                    'data' => null,
                     'msg' => 'Berhasil!'
                 );
 
                 DB::commit();
-            } catch (Exception $e) {
+            } else {
                 DB::rollBack();
 
                 $res = array(
-                    'status' => FALSE,
+                    'status' => false,
                     'data' => $request->all(),
-                    'msg' => $e->getMessage()
+                    'msg' => $validate['msg']
                 );
             }
-        } else {
+        } catch (Exception $e) {
             $res = array(
-                'status' => FALSE,
-                'data' => $request->all(),
-                'msg' => $validate['msg'],
-                'error' => $validate['errors']
+                'status' => false,
+                'data' => null,
+                'msg' => $e->getMessage()
+            );
+        }
+
+        $response = response()->json($res, 200);
+
+        return $response;
+    }
+
+    public function approved(Request $request)
+    {
+        $token = $request->header('token');
+        $param = array('token' => $token);
+        $get = KopUser::where($param)->first();
+
+        if ($token) {
+            $verified_by = $get->id;
+        } else {
+            $verified_by = 'SYS';
+        }
+
+        $find = KopAnggota::find($request->id);
+
+        $find->status = 1;
+        $find->verified_by = $verified_by;
+        $find->verified_at = date('Y-m-d H:i:s');
+
+        try {
+            $find->save();
+
+            $res = array(
+                'status' => true,
+                'data' => null,
+                'msg' => 'Approved!'
+            );
+        } catch (Exception $e) {
+            $res = array(
+                'status' => false,
+                'data' => null,
+                'msg' => $e->getMessage()
+            );
+        }
+
+        $response = response()->json($res, 200);
+
+        return $response;
+    }
+
+    public function rejected(Request $request)
+    {
+        $token = $request->header('token');
+        $param = array('token' => $token);
+        $get = KopUser::where($param)->first();
+
+        if ($token) {
+            $verified_by = $get->id;
+        } else {
+            $verified_by = 'SYS';
+        }
+
+        $find = KopAnggota::find($request->id);
+
+        $find->status = 99;
+        $find->verified_by = $verified_by;
+        $find->verified_at = date('Y-m-d H:i:s');
+
+        try {
+            $find->save();
+
+            $res = array(
+                'status' => true,
+                'data' => null,
+                'msg' => 'Rejected!'
+            );
+        } catch (Exception $e) {
+            $res = array(
+                'status' => false,
+                'data' => null,
+                'msg' => $e->getMessage()
             );
         }
 

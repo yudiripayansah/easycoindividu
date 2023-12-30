@@ -107,40 +107,48 @@ class AnggotaMutasiController extends Controller
         $search = NULL;
         $total = 0;
         $totalPage = 1;
-        $type = NULL;
         $rembug = '~';
+        $status = '~';
 
-        $token = $request->header('token');
-        $param = array('token' => $token);
-        $get = KopUser::where($param)->first();
-        $cabang = $get->kode_cabang;
+        if (isset($request->kode_cabang)) {
+            $cabang = $request->kode_cabang;
+        } else {
+            $token = $request->header('token');
+            $param = array('token' => $token);
+            $get = KopUser::where($param)->first();
+            $cabang = $get->kode_cabang;
+        }
 
-        if ($request->page) {
+        if (isset($request->page)) {
             $page = $request->page;
         }
 
-        if ($request->perPage) {
+        if (isset($request->perPage)) {
             $perPage = $request->perPage;
         }
 
-        if ($request->sortDir) {
+        if (isset($request->sortDir)) {
             $sortDir = $request->sortDir;
         }
 
-        if ($request->sortBy) {
+        if (isset($request->sortBy)) {
             $sortBy = $request->sortBy;
         }
 
-        if ($request->cabang) {
+        if (isset($request->cabang)) {
             $cabang = $request->cabang;
         }
 
-        if ($request->rembug) {
+        if (isset($request->rembug)) {
             $rembug = $request->rembug;
         }
 
-        if ($request->search) {
+        if (isset($request->search)) {
             $search = strtoupper($request->search);
+        }
+
+        if (isset($request->status)) {
+            $status = $request->status;
         }
 
         if ($page > 1) {
@@ -151,7 +159,6 @@ class AnggotaMutasiController extends Controller
             ->join('kop_anggota AS ka', 'ka.no_anggota', 'kop_anggota_mutasi.no_anggota')
             ->join('kop_cabang AS kc', 'kc.kode_cabang', 'ka.kode_cabang')
             ->leftjoin('kop_rembug AS kr', 'kr.kode_rembug', 'ka.kode_rembug')
-            ->where('status_mutasi', $request->status)
             ->orderBy($sortBy, $sortDir);
 
         if ($cabang != '00000') {
@@ -170,6 +177,10 @@ class AnggotaMutasiController extends Controller
             $read->whereRaw("(ka.no_anggota LIKE '%" . $search . "%')");
         }
 
+        if ($status != '~') {
+            $read->where('kop_anggota_mutasi.status_mutasi', $status);
+        }
+
         $read = $read->get();
 
         foreach ($read as $rd) {
@@ -177,9 +188,8 @@ class AnggotaMutasiController extends Controller
             $rd->used_count = $useCount;
         }
 
-        if ($search || $rembug || $type) {
-            $total = KopAnggotaMutasi::where('status_mutasi', $request->status)
-                ->join('kop_anggota AS ka', 'ka.no_anggota', 'kop_anggota_mutasi.no_anggota')
+        if ($search <> null) {
+            $total = KopAnggotaMutasi::join('kop_anggota AS ka', 'ka.no_anggota', 'kop_anggota_mutasi.no_anggota')
                 ->join('kop_cabang AS kc', 'kc.kode_cabang', 'ka.kode_cabang')
                 ->leftjoin('kop_rembug AS kr', 'kr.kode_rembug', 'ka.kode_rembug')
                 ->orderBy($sortBy, $sortDir);
@@ -192,8 +202,12 @@ class AnggotaMutasiController extends Controller
                 $total->where('ka.kode_rembug', $rembug);
             }
 
-            if ($search) {
+            if ($search != NULL) {
                 $total->whereRaw("(ka.no_anggota LIKE '%" . $search . "%')");
+            }
+
+            if ($status != '~') {
+                $total->where('kop_anggota_mutasi.status_mutasi', $status);
             }
 
             $total = $total->count();

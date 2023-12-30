@@ -6,35 +6,19 @@
         <b-col cols="8" class="mb-5">
           <div class="row">
             <b-col cols="4">
-                  <b-input-group prepend="Cabang" class="mb-3">
-                    <b-form-select
-                      v-model="paging.cabang"
-                      :options="opt.cabang"
-                    />
-                  </b-input-group>
-                </b-col>
-                <b-col cols="4">
-                  <b-input-group prepend="Petugas" class="mb-3">
-                    <b-form-select
-                      v-model="paging.petugas"
-                      :options="opt.petugas"
-                    />
-                  </b-input-group>
-                </b-col>
-                <b-col cols="4">
-                  <b-input-group prepend="Majelis" class="mb-3">
-                    <b-form-select
-                      v-model="paging.rembug"
-                      :options="opt.rembug"
-                    />
-                  </b-input-group>
-                </b-col>
-            <b-col cols="6">
+              <b-input-group prepend="Cabang" class="mb-3">
+                <b-form-select
+                  v-model="paging.cabang"
+                  :options="opt.cabang"
+                />
+              </b-input-group>
+            </b-col>
+            <b-col cols="4">
               <b-input-group prepend="Dari Tanggal">
                 <b-form-datepicker v-model="paging.from" />
               </b-input-group>
             </b-col>
-            <b-col cols="6">
+            <b-col cols="4">
               <b-input-group prepend="Sampai Tanggal">
                 <b-form-datepicker v-model="paging.to" />
               </b-input-group>
@@ -182,13 +166,6 @@ export default {
             tdClass: "",
           },
           {
-            key: "nama_rembug",
-            sortable: true,
-            label: "Nama Majelis",
-            thClass: "text-center",
-            tdClass: "",
-          },
-          {
             key: "nama_cabang",
             sortable: true,
             label: "Nama Cabang",
@@ -245,13 +222,6 @@ export default {
             tdClass: "",
           },
           {
-            key: "nama_rembug",
-            sortable: false,
-            label: "Nama Majelis",
-            thClass: "text-center",
-            tdClass: "",
-          },
-          {
             key: "nama_cabang",
             sortable: false,
             label: "Nama Cabang",
@@ -291,8 +261,6 @@ export default {
         loading: false,
         totalRows: 0,
         cabang: 0,
-        petugas: 0,
-        rembug: 0,
         from: null,
         to: null,
       },
@@ -302,17 +270,12 @@ export default {
         sortDesc: true,
         sortBy: "kop_anggota.id",
         search: "",
-        status: "~",
         cabang: null,
-        petugas: null,
-        rembug: null,
         from: null,
         to: null,
       },
       opt: {
-        cabang: [],
-        petugas: [],
-        rembug: [],
+        cabang: []
       },
     };
   },
@@ -330,8 +293,6 @@ export default {
   mounted() {
     this.doGet();
     this.doGetCabang();
-    this.doGetPetugas();
-    this.doGetRembug();
   },
   methods: {
     ...helper,
@@ -387,7 +348,7 @@ export default {
       });
     },
     async exportXls() {
-      let payload = `kode_cabang=${this.paging.cabang}&kode_rembug=~&from_date=${this.paging.from}&thru_date=${this.paging.to}`;
+      let payload = `kode_cabang=${this.paging.cabang}&from_date=${this.paging.from}&thru_date=${this.paging.to}`;
       let req = await easycoApi.anggotaExcel(payload);
       console.log(req.data);
       const url = window.URL.createObjectURL(new Blob([req.data]));
@@ -399,7 +360,7 @@ export default {
       link.click();
     },
     async exportCsv() {
-      let payload = `kode_cabang=${this.paging.cabang}&kode_rembug=~&from_date=${this.paging.from}&thru_date=${this.paging.to}`;
+      let payload = `kode_cabang=${this.paging.cabang}&from_date=${this.paging.from}&thru_date=${this.paging.to}`;
       let req = await easycoApi.anggotaCsv(payload);
       console.log(req.data);
       const url = window.URL.createObjectURL(new Blob([req.data]));
@@ -445,54 +406,6 @@ export default {
             this.opt.cabang.push({
               value: item.kode_cabang,
               text: item.nama_cabang,
-            });
-          });
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async doGetPetugas() {
-      let payload = null;
-      try {
-        let req = await easycoApi.petugasRead(payload, this.user.token);
-        let { data, status, msg } = req.data;
-        if (status) {
-          this.opt.petugas = [
-            {
-              value: null,
-              text: "All",
-            },
-          ];
-          data.map((item) => {
-            this.opt.petugas.push({
-              value: Number(item.kode_petugas),
-              text: item.nama_kas_petugas,
-            });
-          });
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async doGetRembug() {
-      let payload = {
-        kode_cabang: this.user.kode_cabang,
-      };
-      try {
-        let req = await easycoApi.anggotaRembug(payload, this.user.token);
-        let { data, status, msg } = req.data;
-        if (status) {
-          this.opt.rembug = [
-            {
-              value: null,
-              text: "All",
-            },
-          ];
-          data.map((item) => {
-            this.opt.rembug.push({
-              value: Number(item.kode_rembug),
-              text: item.nama_rembug,
             });
           });
         }

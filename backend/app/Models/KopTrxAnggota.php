@@ -14,7 +14,7 @@ class KopTrxAnggota extends Model
     use SoftDeletes;
 
     protected $table = 'kop_trx_anggota';
-    protected $fillable = ['id_trx_anggota', 'no_anggota', 'trx_date', 'flag_debet_credit', 'trx_type', 'created_by'];
+    protected $fillable = ['id_trx_anggota', 'no_anggota', 'trx_date', 'amount', 'flag_debet_credit', 'trx_type', 'created_by'];
 
     public function validateAdd($validate)
     {
