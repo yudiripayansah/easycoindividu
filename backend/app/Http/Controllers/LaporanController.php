@@ -46,44 +46,30 @@ class LaporanController extends Controller
 {
     function list_excel_anggota_masuk(Request $request)
     {
-        $list = new ListAnggotaMasukExport($request->kode_cabang, $request->kode_rembug, $request->from_date, $request->thru_date, 'excel');
+        $list = new ListAnggotaMasukExport($request->kode_cabang, $request->kode_petugas, $request->kode_rembug, $request->from_date, $request->thru_date, 'excel');
 
-        if ($request->kode_cabang <> '~') {
+        if ($request->kode_cabang <> '~' and $request->kode_cabang <> '00000' and !empty($request->kode_cabang) and $request->kode_cabang <> null) {
             $branch = KopCabang::where('kode_cabang', $request->kode_cabang)->first();
             $cabang = str_replace(' ', '_', $branch->nama_cabang);
         } else {
             $cabang = 'SEMUA_CABANG';
         }
 
-        if ($request->kode_rembug <> '~') {
-            $cm = KopRembug::where('kode_rembug', $request->kode_rembug)->first();
-            $rembug = str_replace(' ', '_', $cm->nama_rembug);
-        } else {
-            $rembug = 'SEMUA_REMBUG';
-        }
-
-        return $list->download('LAPORAN_LIST_ANGGOTA_MASUK_' . $cabang . '_' . $rembug . '_' . $request->from_date . '_' . $request->thru_date . '.xlsx');
+        return $list->download('LAPORAN_LIST_ANGGOTA_MASUK_' . $cabang . '_' . $request->from_date . '_' . $request->thru_date . '.xlsx');
     }
 
     function list_csv_anggota_masuk(Request $request)
     {
-        $list = new ListAnggotaMasukExport($request->kode_cabang, $request->kode_rembug, $request->from_date, $request->thru_date, 'csv');
+        $list = new ListAnggotaMasukExport($request->kode_cabang, $request->kode_petugas, $request->kode_rembug, $request->from_date, $request->thru_date, 'csv');
 
-        if ($request->kode_cabang <> '~') {
+        if ($request->kode_cabang <> '~' and $request->kode_cabang <> '00000' and !empty($request->kode_cabang) and $request->kode_cabang <> null) {
             $branch = KopCabang::where('kode_cabang', $request->kode_cabang)->first();
             $cabang = str_replace(' ', '_', $branch->nama_cabang);
         } else {
             $cabang = 'SEMUA_CABANG';
         }
 
-        if ($request->kode_rembug <> '~') {
-            $cm = KopRembug::where('kode_rembug', $request->kode_rembug)->first();
-            $rembug = str_replace(' ', '_', $cm->nama_rembug);
-        } else {
-            $rembug = 'SEMUA_REMBUG';
-        }
-
-        return $list->download('LAPORAN_LIST_ANGGOTA_MASUK_' . $cabang . '_' . $rembug . '_' . $request->from_date . '_' . $request->thru_date . '.csv');
+        return $list->download('LAPORAN_LIST_ANGGOTA_MASUK_' . $cabang . '_' . $request->from_date . '_' . $request->thru_date . '.csv');
     }
 
     function list_excel_pengajuan(Request $request)

@@ -12,7 +12,7 @@ class KopAnggota extends Model
     use SoftDeletes;
 
     protected $table = 'kop_anggota';
-    protected $fillable = ['kode_cabang', 'kode_rembug', 'no_anggota', 'nama_anggota', 'jenis_kelamin', 'ibu_kandung', 'tempat_lahir', 'tgl_lahir', 'alamat', 'desa', 'kecamatan', 'kabupaten', 'kodepos', 'no_ktp', 'no_npwp', 'no_telp', 'pendidikan', 'status_perkawinan', 'nama_pasangan', 'pekerjaan', 'ket_pekerjaan', 'pendapatan_perbulan', 'simpok', 'simwa', 'simsuk', 'tgl_gabung', 'status', 'tanggal_keluar', 'created_by'];
+    protected $fillable = ['kode_cabang', 'kode_rembug', 'no_anggota', 'nama_anggota', 'jenis_kelamin', 'ibu_kandung', 'tempat_lahir', 'tgl_lahir', 'alamat', 'desa', 'kecamatan', 'kabupaten', 'kodepos', 'no_ktp', 'doc_ktp', 'no_npwp', 'no_telp', 'pendidikan', 'status_perkawinan', 'nama_pasangan', 'pekerjaan', 'ket_pekerjaan', 'pendapatan_perbulan', 'simpok', 'simwa', 'simsuk', 'tgl_gabung', 'ttd_anggota', 'status', 'tanggal_keluar', 'created_by'];
 
     public function validateAdd($validate)
     {
@@ -155,6 +155,8 @@ class KopAnggota extends Model
         ka.simpok,
         ka.simwa,
         ka.simsuk,
+        ka.tgl_gabung,
+        ka.status,
         kc.nama_cabang,
         kr.nama_rembug,
         COALESCE(a.saldo_pokok,0) AS saldo_pokok,

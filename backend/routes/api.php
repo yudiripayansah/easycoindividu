@@ -135,9 +135,12 @@ Route::prefix('anggota')->middleware('checkToken')->group(function () {
   Route::post('/rembug', [AnggotaController::class, 'rembug']);
   Route::get('/simpanan_anggota', [AnggotaController::class, 'simpanan_anggota']);
   Route::post('/create', [AnggotaController::class, 'create']);
+  Route::get('/unverified_anggota', [AnggotaController::class, 'unverified_anggota']);
   Route::post('/read', [AnggotaController::class, 'read']);
   Route::get('/detail', [AnggotaController::class, 'detail']);
   Route::post('/update', [AnggotaController::class, 'update']);
+  Route::post('/approved', [AnggotaController::class, 'approved']);
+  Route::post('/rejected', [AnggotaController::class, 'rejected']);
   Route::get('/delete', [AnggotaController::class, 'delete']);
 });
 
@@ -356,6 +359,8 @@ Route::prefix('trx_member')->middleware('checkToken')->group(function () {
   Route::post('/penerimaan_angsuran', [TplController::class, 'penerimaan_angsuran']);
   Route::post('/kartu_angsuran', [TplController::class, 'kartu_angsuran']);
   Route::post('/transaksi_majelis', [TplController::class, 'transaksi_majelis']);
+  Route::post('/transaksi_setoran_pokwa', [TrxAnggota::class, 'transaksi_setoran_pokwa']);
+  Route::post('/read_setoran_pokwa', [TrxAnggota::class, 'read_setoran_pokwa']);
 });
 
 Route::prefix('trx_rembug')->middleware('checkToken')->group(function () {

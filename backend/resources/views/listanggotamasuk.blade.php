@@ -31,7 +31,6 @@
             <th style="text-align: center; font-weight: bold; border: 1px solid #000;">Nama</th>
             <th style="text-align: center; font-weight: bold; border: 1px solid #000;">NIK</th>
             <th style="text-align: center; font-weight: bold; border: 1px solid #000;">No. Anggota</th>
-            <th style="text-align: center; font-weight: bold; border: 1px solid #000;">Rembug</th>
             <th style="text-align: center; font-weight: bold; border: 1px solid #000;">Status</th>
         </tr>
     </thead>
@@ -55,7 +54,6 @@
             <td style="border: 1px solid #000;">{{ $masuk->nama_anggota }}</td>
             <td style="border: 1px solid #000;">'{{ $masuk->no_ktp }}</td>
             <td style="border: 1px solid #000;">'{{ $masuk->no_anggota }}</td>
-            <td style="border: 1px solid #000;">{{ $masuk->nama_rembug }}</td>
             <td style="border: 1px solid #000;">{{ $status_keanggotaan }}</td>
         </tr>
         @endforeach
